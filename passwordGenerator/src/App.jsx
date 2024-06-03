@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 
 function App() {
   const [length, setLength] = useState(8);
@@ -18,7 +18,17 @@ function App() {
     }
 
     setPassword(pass);
-  }, [length, number, character, setPassword]);
+  }, [length, number, character]);
+
+  const refPassword = useRef(null);
+
+  const copyPassword = useCallback(() => {
+    navigator.clipboard.writeText(password);
+    refPassword.current.select();
+  }, [password]);
+  useEffect(() => {
+    passwordGenerator();
+  }, [length, number, character]);
   return (
     <>
       <div class="flex items-center justify-center w-full h-screen bg-blue-500">
@@ -30,12 +40,16 @@ function App() {
             <div class="w-full flex mb-6">
               <input
                 type="text"
-                value="{password}"
+                value={password}
                 placeholder="Password"
                 readonly
-                class="flex-1 px-4 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:border-blue-500"
+                ref={refPassword}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:border-blue-500"
               />
-              <button class="bg-blue-600 text-white px-4 py-2 rounded-r-md hover:bg-blue-700">
+              <button
+                onClick={copyPassword}
+                className="px-4 py-2 text-white bg-blue-600 rounded-r-md hover:bg-blue-700"
+              >
                 Copy
               </button>
             </div>
@@ -43,7 +57,8 @@ function App() {
               type="range"
               min={8}
               max={50}
-              //value={length}
+              //initial Value
+              value={length}
               onChange={(e) => {
                 setLength(e.target.value);
               }}
@@ -54,6 +69,9 @@ function App() {
             </label>
             <div class="flex items-center mb-4 mr-16">
               <input
+                onChange={() => {
+                  setNumber((prev) => !prev);
+                }}
                 type="checkbox"
                 class="w-5 h-5 text-blue-600 form-checkbox"
               />
@@ -63,6 +81,9 @@ function App() {
             </div>
             <div class="flex items-center ">
               <input
+                onChange={() => {
+                  setChar((prev) => !prev);
+                }}
                 type="checkbox"
                 class="w-5 h-5 text-blue-600 form-checkbox ml-2"
               />
